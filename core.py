@@ -2,7 +2,6 @@ import pandas as pd
 from sklearn.model_selection import StratifiedKFold
 
 
-
 DF_TRAIN = 'train.csv'
 DF_TEST = 'test.csv'
 
