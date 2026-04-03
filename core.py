@@ -11,8 +11,7 @@ X_train = df_train.drop('Survived', axis=1)
 Y_train = df_train['Survived']
 
 df_test = pd.read_csv(DF_TEST)
-# Y_test = pd.read_csv(DF_SUB)['Survived'].values()
+Y_test = pd.read_csv(DF_SUB)['Survived'].values()
 
 
 skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-
