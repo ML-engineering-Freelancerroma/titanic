@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.metrics import make_scorer, f1_score, precision_score
 
 
 DF_TRAIN = 'train_prep.csv'
@@ -16,6 +17,8 @@ df_test = pd.read_csv(DF_TEST)
 
 
 skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+
+CAT_FEATURES = ['Pclass', 'Sex', 'Designation']
 
 
 def evaluate_model(model, X, y, cv, scoring_dict, n_jobs=-1):
@@ -35,3 +38,14 @@ def evaluate_model(model, X, y, cv, scoring_dict, n_jobs=-1):
         )
         results[metric_name] = float(np.mean(scores))
     return results
+
+
+"""
+Словарь метрик для оценки модели
+"""
+score = {
+    'Accuracy': 'accuracy',
+    'F1': make_scorer(f1_score, average='binary'),
+    'ROC-AUC': 'roc_auc',
+    'Precision': make_scorer(precision_score, average='binary'),
+}
