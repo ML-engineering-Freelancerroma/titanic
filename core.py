@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from datetime import datetime
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from sklearn.metrics import make_scorer, f1_score, precision_score
 
@@ -49,3 +50,20 @@ score = {
     'ROC-AUC': 'roc_auc',
     'Precision': make_scorer(precision_score, average='binary'),
 }
+
+
+def save_results(results_dict: dict, model_name: str):
+    """
+    Функция для сохранения результатов модели в файл
+    """
+    filepath = 'results_all.csv'
+
+    df_new = pd.DataFrame([results_dict])
+    df_new.insert(0, 'Model', model_name)
+
+    for col in ['Accuracy', 'F1', 'ROC-AUC']:
+        if col in df_new.columns:
+            df_new[col] = df_new[col].round(4)
+
+    df_new['Saved_Time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
