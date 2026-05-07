@@ -54,3 +54,18 @@ def evaluate_model(
         )
         results[metric_name] = float(np.mean(scores))
     return results
+
+
+def save_results(
+    results_dict: dict,
+    model_name: str,
+    append: bool = True
+):
+    """Сохраняет результаты в CSV файл"""
+
+    filepath = 'results_all.csv'
+    df_new = pd.DataFrame([results_dict])
+    df_new.insert(0, 'Model', model_name)
+    metric_cols = ['Accuracy', 'F1', 'ROC-AUC', 'Precision', 'Recall']
+
+
