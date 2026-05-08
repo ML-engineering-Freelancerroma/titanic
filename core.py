@@ -38,9 +38,7 @@ def evaluate_model(
     scoring_dict,
     n_jobs=-1
 ):
-    """
-    Универсальная функция для cross-validation
-    """
+    """Универсальная функция для cross-validation"""
 
     results = {}
     for metric_name, scorer in scoring_dict.items():
@@ -68,4 +66,26 @@ def save_results(
     df_new.insert(0, 'Model', model_name)
     metric_cols = ['Accuracy', 'F1', 'ROC-AUC', 'Precision', 'Recall']
 
+    for col in metric_cols:
+        if col in df_new.columns:
+            df_new[col] = df_new[col].round(4)
 
+    df_new['Saved_Time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    if append and os.path.exists(filepath):
+        df_existing = pd.read_csv(filepath)
+
+        existing_cols = df_existing.columns.tolist()
+        new_cols = df_new.columns.tolist()
+
+        all_cols = list(dict.fromkeys(['Model'] + existing_cols + new_cols))
+
+        df_existing = df_existing.reindex(columns=all_cols)
+        df_new = df_new.reindex(columns=all_cols)
+
+        df_combined = pd.concat([df_existing, df_new], ignore_index=True)
+    else:
+        df_combined = df_new
+
+    df_combined.to_csv(filepath, index=False)
+    print(f'Результаты {model_name} сохранены')
