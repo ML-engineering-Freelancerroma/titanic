@@ -89,3 +89,16 @@ def save_results(
 
     df_combined.to_csv(filepath, index=False)
     print(f'Результаты {model_name} сохранены')
+
+
+def save_model(
+    model, model_name: str,
+    models_dir: str = 'models'
+):
+    """Сохранение модели"""
+
+    os.makedirs(models_dir, exist_ok=True)
+
+    joblib.dump(model, f'{models_dir}/{model_name}_best.pkl')
+
+    print(f'Модель {model_name} сохранена')
