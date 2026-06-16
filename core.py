@@ -102,3 +102,37 @@ def save_model(
     joblib.dump(model, f'{models_dir}/{model_name}_best.pkl')
 
     print(f'Модель {model_name} сохранена')
+
+
+def fit_preprocessor(
+    df,
+    target_col='Survived'
+):
+    """Обучение препроцессора на тренировочных данных"""
+
+    df = df.copy()
+    y = df[target_col].copy()
+
+    age_medians = df.groupby(['Pclass', 'Sex'])['Age'].median().to_dict()
+    df['Age'] = df.apply(
+        lambda row: row['Age'] if pd.notnull(row['Age']) 
+        else age_medians.get((row['Pclass'], row['Sex']), df['Age'].median()),
+        axis=1
+    )
+
+    df['Deck'] = df['Cabin'].str.extract(r'^([A-Za-z])', expand=False).fillna('M')
+
+    df['Cab_count'] = df['Cabin'].str.count(r'[A-Z]\d+').fillna(0).astype(int)
+    df.drop(['Cabin'], axis=1, inplace=True)
+
+    df['Fare_round'] = df['Fare'].round(-1)
+    embarked_modes = df.groupby(['Pclass', 'Fare_round'])['Embarked'].agg(
+        lambda x: x.mode()[0] if not x.mode().empty else 'S'
+    ).to_dict()
+    df['Embarked'] = df.apply(
+        lambda row: row['Embarked'] if pd.notnull(row['Embarked'])
+        else embarked_modes.get((row['Pclass'], row['Fare_round']), 'S'),
+        axis=1
+    )
+    df.drop(['Fare_round'], axis=1, inplace=True)
+
