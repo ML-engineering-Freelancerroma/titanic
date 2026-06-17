@@ -136,3 +136,8 @@ def fit_preprocessor(
     )
     df.drop(['Fare_round'], axis=1, inplace=True)
 
+    sex_mapping = {'male': 1, 'female': 0}
+    df['Sex'] = df['Sex'].map(sex_mapping)
+
+    df = pd.get_dummies(df, columns=['Embarked'], prefix='Emb', drop_first=True, dtype=int)
+    embarked_columns = [col for col in df.columns if col.startswith('Emb_')]
