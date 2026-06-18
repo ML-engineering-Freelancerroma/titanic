@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import joblib
-from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.model_selection import KFold, StratifiedKFold, cross_val_score
 from sklearn.metrics import make_scorer, f1_score, precision_score
 import os
 from datetime import datetime
@@ -141,3 +141,14 @@ def fit_preprocessor(
 
     df = pd.get_dummies(df, columns=['Embarked'], prefix='Emb', drop_first=True, dtype=int)
     embarked_columns = [col for col in df.columns if col.startswith('Emb_')]
+
+    kf = KFold(n_splits=5, shuffle=True, random_state=42)
+    df['Deck_tar_enc'] = np.nan
+    for train_idx, val_idx in kf.split(df):
+        train_fold = df.iloc[train_idx]
+        # Вычисляем среднее Survived по Deck внутри фолда
+        deck_means = train_fold.groupby('Deck')[target_col].mean().to_dict()
+        df.loc[val_idx, 'Deck_tar_enc'] = df.iloc[val_idx]['Deck'].map(deck_means)
+    # Глобальное среднее для заполнения отсутствующих Deck (или новых в тесте)
+    global_mean = df[target_col].mean()
+    df['Deck_tar_enc'] =
