@@ -151,4 +151,12 @@ def fit_preprocessor(
         df.loc[val_idx, 'Deck_tar_enc'] = df.iloc[val_idx]['Deck'].map(deck_means)
     # Глобальное среднее для заполнения отсутствующих Deck (или новых в тесте)
     global_mean = df[target_col].mean()
-    df['Deck_tar_enc'] =
+    df['Deck_tar_enc'] = df['Deck_tar_enc'].fillna(global_mean).round(3)
+    deck_target_enc = df.groupby('Deck')[target_col].mean().to_dict()
+    deck_global_mean = global_mean
+    df.drop('Deck', axis=1, inplace=True)
+
+    df['Designation'] = df['Name'].str.extract(' ([A-Za-z]+)\.')
+    designation_counts = df['Designation'].value_counts()
+    rare_designations = designation_counts[designation_counts < 40].index.tolist()
+    df['Designation'] = df['Designation'].replace(rare_designations, 'Uniq')
