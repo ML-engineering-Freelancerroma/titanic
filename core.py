@@ -160,3 +160,8 @@ def fit_preprocessor(
     designation_counts = df['Designation'].value_counts()
     rare_designations = designation_counts[designation_counts < 40].index.tolist()
     df['Designation'] = df['Designation'].replace(rare_designations, 'Uniq')
+    designation_mapping = {
+        'Mr': 0, 'Mrs': 1, 'Miss': 2, 'Master': 3, 'Uniq': 4
+    }
+    df['Designation'] = df['Designation'].map(designation_mapping)
+    df.drop('Name', axis=1, inplace=True)
