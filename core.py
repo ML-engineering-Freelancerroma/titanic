@@ -165,3 +165,17 @@ def fit_preprocessor(
     }
     df['Designation'] = df['Designation'].map(designation_mapping)
     df.drop('Name', axis=1, inplace=True)
+
+    df['Family'] = df['SibSp'] + df['Parch']
+    df.drop(['SibSp', 'Parch'], axis=1, inplace=True)
+
+    ticket_counts = df['Ticket'].value_counts().to_dict()
+    df['Ticket_uniq'] = df['Ticket'].map(ticket_counts).apply(lambda x: 1 if x == 1 else 0)
+    df.drop('Ticket', axis=1, inplace=True)
+
+    params = {
+        'age_medians': age_medians,
+        'embarked_modes': embarked_modes,
+        'sex_mapping': sex_mapping,
+        'embarked_columns': embarked_columns,
+        'deck_target_enc': deck_target_enc,}
