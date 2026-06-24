@@ -146,10 +146,8 @@ def fit_preprocessor(
     df['Deck_tar_enc'] = np.nan
     for train_idx, val_idx in kf.split(df):
         train_fold = df.iloc[train_idx]
-        # Вычисляем среднее Survived по Deck внутри фолда
         deck_means = train_fold.groupby('Deck')[target_col].mean().to_dict()
         df.loc[val_idx, 'Deck_tar_enc'] = df.iloc[val_idx]['Deck'].map(deck_means)
-    # Глобальное среднее для заполнения отсутствующих Deck (или новых в тесте)
     global_mean = df[target_col].mean()
     df['Deck_tar_enc'] = df['Deck_tar_enc'].fillna(global_mean).round(3)
     deck_target_enc = df.groupby('Deck')[target_col].mean().to_dict()
@@ -178,4 +176,26 @@ def fit_preprocessor(
         'embarked_modes': embarked_modes,
         'sex_mapping': sex_mapping,
         'embarked_columns': embarked_columns,
-        'deck_target_enc': deck_target_enc,}
+        'deck_target_enc': deck_target_enc,
+        'deck_global_mean': deck_global_mean,
+        'designation_mapping': designation_mapping,
+        'rare_designations': rare_designations,
+        'ticket_counts': ticket_counts,
+        'feature_columns': df.drop(target_col, axis=1).columns.tolist()
+    }
+
+    X_processed = df.drop(target_col, axis=1)
+    return X_processed, y, params
+
+
+def transform_preprocessor(df, params):
+    """Применение обученного препроцессора к тестовым данным"""
+    df = df.copy()
+
+    age_medians = params['age_medians']
+    df['Age'] = df.apply(
+        lambda row: row['Age'] if pd.notnull(row['Age'])
+        else age_medians.get((row['Pclass'], row['Sex']), np.nan),
+        axis=1
+    )
+    df['Age'] = df['Age'].fillna(np.median(list(age_medians.values())))
