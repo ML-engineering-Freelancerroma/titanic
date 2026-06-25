@@ -190,6 +190,7 @@ def fit_preprocessor(
 
 def transform_preprocessor(df, params):
     """Применение обученного препроцессора к тестовым данным"""
+
     df = df.copy()
 
     age_medians = params['age_medians']
@@ -199,3 +200,7 @@ def transform_preprocessor(df, params):
         axis=1
     )
     df['Age'] = df['Age'].fillna(np.median(list(age_medians.values())))
+
+    df['Deck'] = df['Cabin'].str.extract(r'^([A-Za-z])', expand=False).fillna('M')
+    df['Cab_count'] = df['Cabin'].str.count(r'[A-Z]\d+').fillna(0).astype(int)
+    df.drop(['Cabin'], axis=1, inplace=True)
