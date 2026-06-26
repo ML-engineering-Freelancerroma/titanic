@@ -204,3 +204,13 @@ def transform_preprocessor(df, params):
     df['Deck'] = df['Cabin'].str.extract(r'^([A-Za-z])', expand=False).fillna('M')
     df['Cab_count'] = df['Cabin'].str.count(r'[A-Z]\d+').fillna(0).astype(int)
     df.drop(['Cabin'], axis=1, inplace=True)
+
+    embarked_modes = params['embarked_modes']
+    df['Fare_round'] = df['Fare'].round(-1)
+    df['Embarked'] = df.apply(
+        lambda row: row['Embarked'] if pd.notnull(row['Embarked'])
+        else embarked_modes.get((row['Pclass'], row['Fare_round']), 'S'),
+        axis=1
+    )
+    df.drop(['Fare_round'], axis=1, inplace=True)
+    
