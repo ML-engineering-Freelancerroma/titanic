@@ -213,4 +213,12 @@ def transform_preprocessor(df, params):
         axis=1
     )
     df.drop(['Fare_round'], axis=1, inplace=True)
-    
+
+    sex_mapping = params['sex_mapping']
+    df['Sex'] = df['Sex'].map(sex_mapping)
+
+    df = pd.get_dummies(df, columns=['Embarked'], prefix='Emb', drop_first=True, dtype=int)
+    for col in params['embarked_columns']:
+        if col not in df.columns:
+            df[col] = 0
+    df = df[params['embarked_columns'] + [c for c in df.columns if not c.startswith('Emb_')]]
