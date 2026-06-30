@@ -222,3 +222,10 @@ def transform_preprocessor(df, params):
         if col not in df.columns:
             df[col] = 0
     df = df[params['embarked_columns'] + [c for c in df.columns if not c.startswith('Emb_')]]
+
+    deck_target_enc = params['deck_target_enc']
+    df['Deck_tar_enc'] = df['Deck'].map(deck_target_enc).fillna(params['deck_global_mean']).round(3)
+    df.drop('Deck', axis=1, inplace=True)
+
+    df['Designation'] = df['Name'].str.extract(' ([A-Za-z]+)\.')
+    df['Designation'] = df['Designation'].replace(params['rare_designations'], 'Uniq')
