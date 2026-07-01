@@ -229,3 +229,8 @@ def transform_preprocessor(df, params):
 
     df['Designation'] = df['Name'].str.extract(' ([A-Za-z]+)\.')
     df['Designation'] = df['Designation'].replace(params['rare_designations'], 'Uniq')
+    df['Designation'] = df['Designation'].map(params['designation_mapping'])
+    df.drop('Name', axis=1, inplace=True)
+
+    df['Family'] = df['SibSp'] + df['Parch']
+    df.drop(['SibSp', 'Parch'], axis=1, inplace=True)
