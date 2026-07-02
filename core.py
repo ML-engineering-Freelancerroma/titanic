@@ -234,3 +234,8 @@ def transform_preprocessor(df, params):
 
     df['Family'] = df['SibSp'] + df['Parch']
     df.drop(['SibSp', 'Parch'], axis=1, inplace=True)
+
+    ticket_counts = params['ticket_counts']
+    df['Ticket_uniq'] = df['Ticket'].map(ticket_counts).apply(lambda x: 1 if x == 1 else 0)
+    df['Ticket_uniq'] = df['Ticket_uniq'].fillna(0).astype(int)
+    df.drop('Ticket', axis=1, inplace=True)
