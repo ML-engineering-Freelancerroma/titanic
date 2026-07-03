@@ -239,3 +239,11 @@ def transform_preprocessor(df, params):
     df['Ticket_uniq'] = df['Ticket'].map(ticket_counts).apply(lambda x: 1 if x == 1 else 0)
     df['Ticket_uniq'] = df['Ticket_uniq'].fillna(0).astype(int)
     df.drop('Ticket', axis=1, inplace=True)
+
+    feature_columns = params['feature_columns']
+    for col in feature_columns:
+        if col not in df.columns:
+            df[col] = 0
+    df = df[feature_columns]
+
+    return df
