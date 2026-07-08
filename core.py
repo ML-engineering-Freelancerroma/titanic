@@ -115,7 +115,7 @@ def fit_preprocessor(
 
     age_medians = df.groupby(['Pclass', 'Sex'])['Age'].median().to_dict()
     df['Age'] = df.apply(
-        lambda row: row['Age'] if pd.notnull(row['Age']) 
+        lambda row: row['Age'] if pd.notnull(row['Age'])
         else age_medians.get((row['Pclass'], row['Sex']), df['Age'].median()),
         axis=1
     )
@@ -136,6 +136,14 @@ def fit_preprocessor(
     )
     df.drop(['Fare_round'], axis=1, inplace=True)
 
+    fare_medians = df.groupby('Pclass')['Fare'].median().to_dict()
+    global_fare_median = df['Fare'].median()
+    df['Fare'] = df.apply(
+        lambda row: row['Fare'] if pd.notnull(row['Fare'])
+        else fare_medians.get(row['Pclass'], global_fare_median),
+        axis=1
+    )
+
     sex_mapping = {'male': 1, 'female': 0}
     df['Sex'] = df['Sex'].map(sex_mapping)
 
@@ -154,7 +162,8 @@ def fit_preprocessor(
     deck_global_mean = global_mean
     df.drop('Deck', axis=1, inplace=True)
 
-    df['Designation'] = df['Name'].str.extract(' ([A-Za-z]+)\.')
+    df['Designation'] = df['Name'].str.extract(r' ([A-Za-z]+)\.')
+    df['Designation'] = df['Designation'].fillna('Uniq')
     designation_counts = df['Designation'].value_counts()
     rare_designations = designation_counts[designation_counts < 40].index.tolist()
     df['Designation'] = df['Designation'].replace(rare_designations, 'Uniq')
@@ -173,6 +182,8 @@ def fit_preprocessor(
 
     params = {
         'age_medians': age_medians,
+        'fare_medians': fare_medians,
+        'global_fare_median': global_fare_median,
         'embarked_modes': embarked_modes,
         'sex_mapping': sex_mapping,
         'embarked_columns': embarked_columns,
@@ -201,6 +212,14 @@ def transform_preprocessor(df, params):
     )
     df['Age'] = df['Age'].fillna(np.median(list(age_medians.values())))
 
+    fare_medians = params['fare_medians']
+    global_fare_median = params['global_fare_median']
+    df['Fare'] = df.apply(
+        lambda row: row['Fare'] if pd.notnull(row['Fare'])
+        else fare_medians.get(row['Pclass'], global_fare_median),
+        axis=1
+    )
+
     df['Deck'] = df['Cabin'].str.extract(r'^([A-Za-z])', expand=False).fillna('M')
     df['Cab_count'] = df['Cabin'].str.count(r'[A-Z]\d+').fillna(0).astype(int)
     df.drop(['Cabin'], axis=1, inplace=True)
@@ -227,7 +246,8 @@ def transform_preprocessor(df, params):
     df['Deck_tar_enc'] = df['Deck'].map(deck_target_enc).fillna(params['deck_global_mean']).round(3)
     df.drop('Deck', axis=1, inplace=True)
 
-    df['Designation'] = df['Name'].str.extract(' ([A-Za-z]+)\.')
+    df['Designation'] = df['Name'].str.extract(r' ([A-Za-z]+)\.')
+    df['Designation'] = df['Designation'].fillna('Uniq')
     df['Designation'] = df['Designation'].replace(params['rare_designations'], 'Uniq')
     df['Designation'] = df['Designation'].map(params['designation_mapping'])
     df.drop('Name', axis=1, inplace=True)
