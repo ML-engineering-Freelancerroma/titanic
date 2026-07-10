@@ -249,6 +249,8 @@ def transform_preprocessor(df, params):
     df['Designation'] = df['Name'].str.extract(r' ([A-Za-z]+)\.')
     df['Designation'] = df['Designation'].fillna('Uniq')
     df['Designation'] = df['Designation'].replace(params['rare_designations'], 'Uniq')
+    known_titles = set(params['designation_mapping'].keys())
+    df['Designation'] = df['Designation'].apply(lambda x: x if x in known_titles else 'Uniq')
     df['Designation'] = df['Designation'].map(params['designation_mapping'])
     df.drop('Name', axis=1, inplace=True)
 
