@@ -262,6 +262,8 @@ def transform_preprocessor(df, params):
     df['Ticket_uniq'] = df['Ticket_uniq'].fillna(0).astype(int)
     df.drop('Ticket', axis=1, inplace=True)
 
+    df.drop('PassengerId', axis=1, inplace=True)
+
     feature_columns = params['feature_columns']
     for col in feature_columns:
         if col not in df.columns:
