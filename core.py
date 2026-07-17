@@ -195,6 +195,8 @@ def fit_preprocessor(
         'feature_columns': df.drop(target_col, axis=1).columns.tolist()
     }
 
+    df.drop('PassengerId', axis=1, inplace=True)
+
     X_processed = df.drop(target_col, axis=1)
     return X_processed, y, params
 
