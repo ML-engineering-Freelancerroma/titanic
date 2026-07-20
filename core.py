@@ -180,6 +180,8 @@ def fit_preprocessor(
     df['Ticket_uniq'] = df['Ticket'].map(ticket_counts).apply(lambda x: 1 if x == 1 else 0)
     df.drop('Ticket', axis=1, inplace=True)
 
+    df.drop('PassengerId', axis=1, inplace=True)
+
     params = {
         'age_medians': age_medians,
         'fare_medians': fare_medians,
@@ -195,8 +197,6 @@ def fit_preprocessor(
         'feature_columns': df.drop(target_col, axis=1).columns.tolist()
     }
 
-    df.drop('PassengerId', axis=1, inplace=True)
-
     X_processed = df.drop(target_col, axis=1)
     return X_processed, y, params
 
@@ -205,6 +205,9 @@ def transform_preprocessor(df, params):
     """Применение обученного препроцессора к тестовым данным"""
 
     df = df.copy()
+
+    if 'PassengerId' in df.columns:
+        df.drop('PassengerId', axis=1, inplace=True)
 
     age_medians = params['age_medians']
     df['Age'] = df.apply(
@@ -263,8 +266,6 @@ def transform_preprocessor(df, params):
     df['Ticket_uniq'] = df['Ticket'].map(ticket_counts).apply(lambda x: 1 if x == 1 else 0)
     df['Ticket_uniq'] = df['Ticket_uniq'].fillna(0).astype(int)
     df.drop('Ticket', axis=1, inplace=True)
-
-    df.drop('PassengerId', axis=1, inplace=True)
 
     feature_columns = params['feature_columns']
     for col in feature_columns:
