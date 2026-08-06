@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import joblib
 from sklearn.model_selection import KFold, StratifiedKFold, cross_val_score
-from sklearn.metrics import make_scorer, f1_score, precision_score
+from sklearn.metrics import make_scorer, f1_score, precision_score, accuracy_score, recall_score, confusion_matrix
 import os
 from datetime import datetime
 
@@ -274,3 +274,47 @@ def transform_preprocessor(df, params):
     df = df[feature_columns]
 
     return df
+
+
+def evaluate_models_on_test(model_paths, X_test, y_true, passenger_ids):
+    """Загрузка моделей -> предсказания -> метрики"""
+
+    results = []
+    predictions = {}
+
+    for name, path in model_paths.items():
+        print(f'Загрузка модели {name} из {path}...')
+        model = joblib.load(path)
+
+        print(f'Предсказание для {name}...')
+        preds = model.predict(X_test)
+        predictions[name] = preds
+
+        acc = accuracy_score(y_true, preds)
+        f1 = f1_score(y_true, preds)
+        prec = precision_score(y_true, preds)
+        rec = recall_score(y_true, preds)
+        cm = confusion_matrix(y_true, preds)
+
+        tn, fp, fn, tp = cm.ravel()
+
+        results.append({
+            'Model': name,
+            'Accuracy': acc,
+            'F1': f1,
+            'Precision': prec,
+            'Recall': rec,
+            'TN': tn,
+            'FP': fp,
+            'FN': fn,
+            'TP': tp
+        })
+
+        print(f'  Accuracy: {acc:.4f}, F1: {f1:.4f}')
+        print(f'  Confusion matrix:\n{cm}')
+        print('-' * 50)
+    
+    results_df = pd.DataFrame(results)
+    results_df = results_df.round(4)
+
+    return results_df, predictions
