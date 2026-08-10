@@ -52,3 +52,33 @@ Jupyter Notebook для обучения **CatBoostClassifier** с подбор�
 - Сохранение модели в `models/CatBoost_best.pkl` через `save_model()`
 
 **Результат:** обученная модель CatBoost с оптимальными гиперпараметрами и файл с метриками.
+
+### 4. `train_MLP.ipynb`
+Jupyter Notebook для обучения **MLPClassifier** с подбором гиперпараметров.
+
+**Основные этапы:**
+- Импорт `X_train`, `Y_train`, `skf` из `core.py`
+- Создание пайплайна `StandardScaler` + `MLPClassifier` с ранней остановкой (`early_stopping=True`, `validation_fraction=0.1`, `n_iter_no_change=10`)
+- Определение сетки гиперпараметров: `hidden_layer_sizes`, `activation`, `alpha`, `learning_rate`, `learning_rate_init`
+- Запуск `RandomizedSearchCV` (30 итераций, 5‑fold CV, метрика `roc_auc`)
+- Вывод лучших параметров и ROC‑AUC
+- Оценка лучшей модели на кросс‑валидации по всем метрикам (Accuracy, F1, ROC‑AUC, Precision)
+- Сохранение результатов в `results_all.csv` через `save_results()`
+- Сохранение модели в `models/MLP_best.pkl` через `save_model()`
+
+**Результат:** обученная нейросетевая модель с оптимальными параметрами и файл с метриками.
+
+### 5. `train_XGB.ipynb`
+Jupyter Notebook для обучения **XGBoost** с подбором гиперпараметров.
+
+**Основные этапы:**
+- Импорт `X_train`, `Y_train`, `skf` из `core.py`
+- Создание `XGBClassifier` с учётом дисбаланса классов (`scale_pos_weight`) и быстрым `tree_method='hist'`
+- Определение сетки гиперпараметров: `n_estimators`, `learning_rate`, `max_depth`, `min_child_weight`, `gamma`, `reg_lambda`, `reg_alpha`, `subsample`, `colsample_bytree`
+- Запуск `RandomizedSearchCV` (200 итераций, 5‑fold CV, метрика `roc_auc`)
+- Вывод лучших параметров и ROC‑AUC
+- Оценка лучшей модели на кросс‑валидации по всем метрикам (Accuracy, F1, ROC‑AUC, Precision)
+- Сохранение результатов в `results_all.csv` через `save_results()`
+- Сохранение модели в `models/XGBoost_best.pkl` через `save_model()`
+
+**Результат:** обученная модель XGBoost с оптимальными гиперпараметрами и файл с метриками.
