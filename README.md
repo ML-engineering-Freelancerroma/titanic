@@ -82,3 +82,16 @@ Jupyter Notebook для обучения **XGBoost** с подбором гип�
 - Сохранение модели в `models/XGBoost_best.pkl` через `save_model()`
 
 **Результат:** обученная модель XGBoost с оптимальными гиперпараметрами и файл с метриками.
+
+### 6. `test.ipynb`
+Jupyter Notebook для **тестирования обученных моделей** на тестовых данных и сравнения их качества.
+
+**Основные этапы:**
+- Загрузка сырого `train.csv`, обучение препроцессора через `fit_preprocessor()` и сохранение параметров в `preprocess_params.pkl`
+- Применение `transform_preprocessor()` к `test.csv` (тестовые данные)
+- Загрузка сохранённых моделей из папки `models/` (CatBoost, XGBoost, MLP)
+- Вычисление метрик (Accuracy, F1, Precision, Recall) и матриц ошибок на тестовых данных (используется `gender_submission.csv` как истинные ответы)
+- Сравнение моделей в сводной таблице, сохранение в `test_models_comparison.csv`
+- Создание файлов для отправки на Kaggle: `submission_CatBoost.csv`, `submission_XGBoost.csv`, `submission_MLP.csv`
+
+**Результат:** файлы с предсказаниями для каждой модели и таблица сравнения метрик на тестовом наборе.
